@@ -98,14 +98,14 @@ async function loadFractalInstances(): Promise<FractalInstance[]>
 	return instances;
 }
 
-function updateJuliaUnderPointer(e: MouseEvent)
+function updateJuliaUnderPointer(pointer: PointerEvent)
 {
 	if (currentFractal.type != "mandelbrot") return;
 
 	const rect = canvas.getBoundingClientRect();
 	const dpr = window.devicePixelRatio || 1;
-	const x = (e.clientX - rect.left) * dpr;
-	const y = (e.clientY - rect.top) * dpr;
+	const x = (pointer.clientX - rect.left) * dpr;
+	const y = (pointer.clientY - rect.top) * dpr;
 
 	const width = canvas.width;
 	const height = canvas.height;
@@ -199,24 +199,34 @@ async function initializeInteractiveElements()
 		draw(currentFractal.fractal, currentFractal.gpuData);
 	});
 
-	canvas.addEventListener("mousedown", e =>
+	const activeTouches = new Map<number, [number, number]>();
+
+	canvas.addEventListener("pointerdown", e =>
 	{
-		if (currentFractal.type === "mandelbrot")
+		// if (e.pointerType == "touch" && activeTouches.has(e.pointerId) == true)
+		// {
+		// 	activeTouches.set(e.pointerId, [e.clientX, e.clientY]);
+		// }
+		// if (activeTouches.size == 2)
+		// {
+
+		// }
+		if (currentFractal.type == "mandelbrot")
 		{
 			dragging = true;
 			updateJuliaUnderPointer(e);
 		}
 	});
 
-	canvas.addEventListener("mousemove", e =>
+	canvas.addEventListener("pointermove", e =>
 	{
-		if (dragging && currentFractal.type === "mandelbrot")
+		if (dragging == true && currentFractal.type == "mandelbrot")
 		{
 			updateJuliaUnderPointer(e);
 		}
 	});
 
-	canvas.addEventListener("mouseup", e =>
+	canvas.addEventListener("pointerup", e =>
 	{
 		dragging = false;
 		draw(currentFractal.fractal, currentFractal.gpuData);
