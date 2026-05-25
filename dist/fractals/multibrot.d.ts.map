@@ -1,1 +1,1 @@
-{"version":3,"file":"multibrot.d.ts","sourceRoot":"","sources":["../../src/fractals/multibrot.ts"],"names":[],"mappings":""}
+{"version":3,"file":"multibrot.d.ts","sourceRoot":"","sources":["../../src/fractals/multibrot.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,MAAM,cAAc,CAAC;AAEvC,qBAAa,SAAU,SAAQ,OAAO;IAErC,QAAQ,EAAE,MAAM,CAAC;gBAEL,EAAE,EAAE,MAAM,EAAE,EAAE,EAAE,MAAM,EAAE,KAAK,EAAE,MAAM,EAAE,OAAO,EAAE,MAAM,EAAE,UAAU,EAAE,CAAC,MAAM,EAAE,MAAM,CAAC,EAAE,QAAQ,GAAE,MAAU;IAMtH,QAAQ,IAAI,YAAY;CAcxB"}

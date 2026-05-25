@@ -1,4 +1,4 @@
-// mandelbrot.wgsl
+// multibrot.wgsl
 
 struct Params
 {
@@ -6,9 +6,28 @@ struct Params
 	scale: f32,
 	maxIter: f32,
 	resolution: vec2<f32>,
-	padding: vec2<f32>
+	power: f32,
+	padding: f32
 };
 @group(0) @binding(0) var<uniform> params: Params;
+
+fn complex_mul(a: vec2<f32>, b: vec2<f32>) -> vec2<f32>
+{
+	return vec2(
+		a.x * b.x - a.y * b.y,
+		a.x * b.y + a.y * b.x
+	);
+}
+
+fn complex_power(z: vec2<f32>, power: i32) -> vec2<f32>
+{
+	var result = z;
+	for (var i = 1; i < power; i = i + 1)
+	{
+		result = complex_mul(result, z);
+	}
+	return result;
+}
 
 fn	calc_color(iter: i32) -> vec4<f32>
 {
@@ -30,11 +49,10 @@ fn main(@builtin(position) pos: vec4<f32>) -> @location(0) vec4<f32>
 	var z = vec2(0.0, 0.0);
 	var i: i32 = 0;
 	var max = i32(params.maxIter);
+	var pow = i32(params.power);
 	while (i < max && dot(z, z) <= 4.0)
 	{
-		let x = z.x * z.x - z.y * z.y + c.x;
-		let y = 2.0 * z.x * z.y + c.y;
-		z = vec2(x, y);
+		z = complex_power(z, pow) + c;
 		i++;
 	}
 	if (i == max)

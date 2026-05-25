@@ -1,4 +1,4 @@
-export class Params
+export abstract class Fractal
 {
 	center: [number, number];
 	scale: number;
@@ -21,8 +21,5 @@ export class Params
 		this.resolution = [800, 600];
 	}
 
-	asBuffer(): Float32Array
-	{
-		return new Float32Array([this.center[0], this.center[1], this.scale, this.maxIter, this.resolution[0], this.resolution[1], 0, 0]);
-	}
+	abstract asBuffer(): Float32Array;
 }
