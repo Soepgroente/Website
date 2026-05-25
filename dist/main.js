@@ -3,12 +3,14 @@ import { Params } from "./index.js";
 let params = new Params(-0.75, 0, 2.5, 500, [1920, 1080]);
 let currentGPUdata;
 let canvas;
-const fractalPipelines = {
-    mandelbrot: mandelbrotPipeline,
-    julia: juliaPipeline,
-    multibrot: multibrotPipeline,
-    nova: novaPipeline
-};
+// type FractalType = "mandelbrot" | "julia" | "multibrot" | "nova";
+// const fractalPipelines =
+// {
+// 	mandelbrot: mandelbrotPipeline,
+// 	julia: juliaPipeline,
+// 	multibrot: multibrotPipeline,
+// 	nova: novaPipeline
+// };
 async function loadShader(url) {
     const response = await fetch(url);
     if (response.ok == false) {
@@ -169,7 +171,7 @@ async function start() {
                 params.center[1] += step;
                 break;
             case "r":
-                params = new Params(-0.75, 0, 2.5, 1000, [800, 600]);
+                params.reset();
                 break;
             case "q":
                 params.scale *= 0.8;

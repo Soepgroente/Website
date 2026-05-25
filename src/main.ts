@@ -15,15 +15,15 @@ interface GPUdata
 let params: Params = new Params(-0.75, 0, 2.5, 500, [1920, 1080]);
 let currentGPUdata: GPUdata;
 let canvas: HTMLCanvasElement;
-type FractalType = "mandelbrot" | "julia" | "multibrot" | "nova";
+// type FractalType = "mandelbrot" | "julia" | "multibrot" | "nova";
 
-const fractalPipelines =
-{
-	mandelbrot: mandelbrotPipeline,
-	julia: juliaPipeline,
-	multibrot: multibrotPipeline,
-	nova: novaPipeline
-};
+// const fractalPipelines =
+// {
+// 	mandelbrot: mandelbrotPipeline,
+// 	julia: juliaPipeline,
+// 	multibrot: multibrotPipeline,
+// 	nova: novaPipeline
+// };
 
 async function loadShader(url: string): Promise<string>
 {
