@@ -16,5 +16,4 @@ export class Fractal {
         this.resolution = [800, 600];
     }
 }
-
 //# sourceMappingURL=fractal.js.map

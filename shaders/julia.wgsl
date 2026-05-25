@@ -26,8 +26,8 @@ fn main(@builtin(position) pos: vec4<f32>) -> @location(0) vec4<f32>
 {
 	let aspect = params.resolution.x / params.resolution.y;
 	let uv = (pos.xy / vec2(params.resolution.x, params.resolution.y) - vec2(0.5, 0.5)) * vec2(params.scale * aspect, params.scale) + params.center;
-	var c = vec2(uv.x, uv.y);
-	var z = vec2(0.0, 0.0);
+	var c = params.coordinate;
+	var z = vec2(uv.x, uv.y);
 	var i: i32 = 0;
 	var max = i32(params.maxIter);
 	while (i < max && dot(z, z) <= 4.0)

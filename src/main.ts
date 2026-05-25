@@ -14,6 +14,7 @@ let canvas: HTMLCanvasElement;
 let currentFractal: FractalInstance;
 let fractals: FractalInstance[] = [];
 let device: GPUDevice;
+let dragging = false;
 
 function resizeCanvasToFullWindow()
 {
@@ -26,18 +27,16 @@ function resizeCanvasToFullWindow()
 	canvas.style.height = window.innerHeight + 'px';
 }
 
-function draw(data: GPUdata)
+function draw(fractal: Fractal, data: GPUdata)
 {
-	const frac = currentFractal.fractal;
-
-	frac.resolution = [canvas.width, canvas.height];
+	fractal.resolution = [canvas.width, canvas.height];
 
 	device.queue.writeBuffer(
 		data.uniformBuffer,
 		0,
-		frac.asBuffer().buffer,
-		frac.asBuffer().byteOffset,
-		frac.asBuffer().byteLength
+		fractal.asBuffer().buffer,
+		fractal.asBuffer().byteOffset,
+		fractal.asBuffer().byteLength
 	);
 	const commandEncoder = device.createCommandEncoder();
 	const textureView = data.context.getCurrentTexture().createView();
@@ -65,7 +64,7 @@ function switchFractal(type: string)
 		alert(`Fractal type not found: ${type}`);
 		throw new Error(`Fractal type not found: ${type}`);
 	}
-	draw(currentFractal.gpuData);
+	draw(currentFractal.fractal, currentFractal.gpuData);
 }
 
 async function loadFractalInstances(): Promise<FractalInstance[]>
@@ -99,24 +98,42 @@ async function loadFractalInstances(): Promise<FractalInstance[]>
 	return instances;
 }
 
-async function start()
+function updateJuliaUnderPointer(e: MouseEvent)
 {
-	canvas = document.getElementById("gfx") as HTMLCanvasElement;
-	device = await setupGPU(canvas);
-	fractals = await loadFractalInstances();
+	if (currentFractal.type != "mandelbrot") return;
 
-	if (fractals == null || fractals.length == 0)
+	const rect = canvas.getBoundingClientRect();
+	const dpr = window.devicePixelRatio || 1;
+	const x = (e.clientX - rect.left) * dpr;
+	const y = (e.clientY - rect.top) * dpr;
+
+	const width = canvas.width;
+	const height = canvas.height;
+	const aspect = width / height;
+
+	const mandel = currentFractal.fractal;
+	const c_re = (x / width  - 0.5) * mandel.scale * aspect + mandel.center[0];
+	const c_im = (y / height - 0.5) * mandel.scale + mandel.center[1];
+
+	const juliaInstance = fractals.find(f => f.type == "julia");
+	if (juliaInstance == null)
 	{
-		alert("Failed to load fractal instances!");
-		throw new Error("Failed to load fractal instances");
+		throw new Error("Julia fractal not found!");
 	}
-	switchFractal("mandelbrot");
+	const julia = juliaInstance.fractal as Julia;
+	julia.c = [c_re, c_im];
+	julia.center = mandel.center;
+	julia.scale = mandel.scale;
+	draw(julia, juliaInstance.gpuData);
+}
 
+async function initializeInteractiveElements()
+{
 	window.addEventListener("resize", () =>
 	{
 		resizeCanvasToFullWindow();
 		currentFractal.fractal.resolution = [canvas.width, canvas.height];
-		draw(currentFractal.gpuData);
+		draw(currentFractal.fractal, currentFractal.gpuData);
 	});
 
 	window.addEventListener("keydown", e =>
@@ -152,21 +169,78 @@ async function start()
 				break;
 			default: return;
 		}
-		draw(currentFractal.gpuData);
+		draw(currentFractal.fractal, currentFractal.gpuData);
 	});
 
 	canvas.addEventListener("wheel", e =>
 	{
-		const zoom = e.deltaY < 0 ? 0.8 : 1.25;
-		currentFractal.fractal.scale *= zoom;
-		draw(currentFractal.gpuData);
+		e.preventDefault();
+
+		const frac = currentFractal.fractal;
+		const rect = canvas.getBoundingClientRect();
+		const dpr = window.devicePixelRatio || 1;
+		const mouseX = (e.clientX - rect.left) * dpr;
+		const mouseY = (e.clientY - rect.top) * dpr;
+		const width = canvas.width;
+		const height = canvas.height;
+		const aspect = width / height;
+
+		const before_real = (mouseX / width - 0.5) * frac.scale * aspect + frac.center[0];
+		const before_imag = (mouseY / height - 0.5) * frac.scale + frac.center[1];
+
+		frac.scale *= e.deltaY < 0 ? 0.8 : 1.25;
+
+		const after_real = (mouseX / width - 0.5) * frac.scale * aspect + frac.center[0];
+		const after_imag = (mouseY / height - 0.5) * frac.scale + frac.center[1];
+
+		frac.center[0] += before_real - after_real;
+		frac.center[1] += before_imag - after_imag;
+
+		draw(currentFractal.fractal, currentFractal.gpuData);
+	});
+
+	canvas.addEventListener("mousedown", e =>
+	{
+		if (currentFractal.type === "mandelbrot")
+		{
+			dragging = true;
+			updateJuliaUnderPointer(e);
+		}
+	});
+
+	canvas.addEventListener("mousemove", e =>
+	{
+		if (dragging && currentFractal.type === "mandelbrot")
+		{
+			updateJuliaUnderPointer(e);
+		}
+	});
+
+	canvas.addEventListener("mouseup", e =>
+	{
+		dragging = false;
+		draw(currentFractal.fractal, currentFractal.gpuData);
 	});
 
 	document.getElementById("mandelbrot")!.onclick = () => switchFractal("mandelbrot");
 	document.getElementById("multibrot")!.onclick = () => switchFractal("multibrot");
 	document.getElementById("nova")!.onclick = () => switchFractal("nova");
+}
+
+async function start()
+{
+	canvas = document.getElementById("gfx") as HTMLCanvasElement;
+	device = await setupGPU(canvas);
+	await initializeInteractiveElements();
+	fractals = await loadFractalInstances();
+	if (fractals == null || fractals.length == 0)
+	{
+		alert("Failed to load fractal instances!");
+		throw new Error("Failed to load fractal instances");
+	}
+	switchFractal("mandelbrot");
 	resizeCanvasToFullWindow();
-	draw(currentFractal.gpuData);
+	draw(currentFractal.fractal, currentFractal.gpuData);
 }
 
 start();
