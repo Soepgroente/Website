@@ -1,4 +1,4 @@
-import { Fractal } from "./fractal.js";
+import { Fractal } from "./classes/fractal.js";
 
 export class Mandelbrot extends Fractal
 {

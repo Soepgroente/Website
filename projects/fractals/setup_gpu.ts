@@ -21,18 +21,21 @@ async function loadShader(url: string): Promise<string>
 
 export async function setupGPU(canvas: HTMLCanvasElement): Promise<GPUDevice>
 {
+	console.log("navigator.gpu:", navigator.gpu);
 	if (navigator.gpu == null)
 	{
 		alert("WebGPU not supported! Try Chrome or Firefox Nightly.");
 		throw new Error("WebGPU not supported");
 	}
 	const adapter = await navigator.gpu.requestAdapter();
+	console.log("adapter:", adapter);
 	if (adapter == null)
 	{
 		alert("Failed to get GPU adapter!");
 		throw new Error("Failed to get GPU adapter");
 	}
 	const device = await adapter.requestDevice();
+	console.log("WebGPU device:", device);
 	return device;
 }
 	

@@ -43,5 +43,5 @@
 	"esModuleInterop": true,
     "skipLibCheck": true,
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "projects/fractals", "projects/fractals/main.ts"]
 }
