@@ -1,4 +1,3 @@
-import { startFractal } from './fractal_entry.js';
 const pages = {
     home: document.getElementById("homepage"),
     fractals: document.getElementById("fractals-page"),
@@ -7,41 +6,32 @@ const pages = {
     empty3: document.getElementById("empty3-page"),
 };
 let currentPage = "home";
-let fractalInitialized = false;
 function showPage(page) {
     for (const key in pages) {
-        const entry = pages[key];
-        if (entry == null) {
-            continue;
-        }
-        entry.classList.remove("active");
-        entry.style.display = "none";
+        pages[key].classList.remove("active");
+        pages[key].style.display = "none";
     }
     pages[page].classList.add("active");
     pages[page].style.display = "block";
     currentPage = page;
     if (page == "fractals") {
         document.body.style.overflow = "hidden";
-        if (fractalInitialized == false) {
-            startFractal();
-            fractalInitialized = true;
-        }
     }
     else {
         document.body.style.overflow = "";
     }
 }
+// Hook up project buttons
 document.getElementById("project-buttons").addEventListener("click", e => {
     if (e.target instanceof HTMLButtonElement) {
-        const page = e.target.dataset.project;
-        if (page == null) {
-            return;
-        }
-        showPage(page);
+        showPage(e.target.dataset.project);
     }
 });
+// Back buttons
 document.querySelectorAll(".spa-back").forEach(btn => {
     btn.addEventListener("click", () => showPage("home"));
 });
+// On load
 showPage("home");
-//# sourceMappingURL=main.js.map
+export {};
+//# sourceMappingURL=nav.js.map
